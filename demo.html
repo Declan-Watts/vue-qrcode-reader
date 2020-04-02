@@ -17,6 +17,7 @@
   <body>
     <div id="app">
       <p>Last result: <b>{{ decodedContent }}</b></p>
+      <!-- // HERE -------------------------- -->
 
       <qrcode-stream
         @decode="onDecode"
@@ -44,6 +45,7 @@
           destroyed: false,
           loading: false,
           camera: "auto",
+          // HERE --------------------------
           cameraId: "1232"
         };
       },

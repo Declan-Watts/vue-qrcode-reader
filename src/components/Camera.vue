@@ -49,7 +49,7 @@ export default {
       // }
       // exact: "344fe3b15274e4c6be1348dd742c3ff8f89a2813e3be7e42756bd8481af2253f"
     },
-
+    // HERE --------------------------
     deviceID: {
       default:
         "344fe3b15274e4c6be1348dd742c3ff8f89a2813e3be7e42756bd8481af2253f"
@@ -83,6 +83,7 @@ export default {
         video: {
           width: { min: 360, ideal: 640, max: 1920 },
           height: { min: 240, ideal: 480, max: 1080 },
+          // HERE --------------------------
           deviceId: {
             exact: this.deviceID
           }
@@ -150,6 +151,7 @@ export default {
       }
 
       try {
+        // HERE --------------------------
         console.log(constraints);
         if (constraints.video.deviceId.exact === "123") {
           constraints.video.facingMode = "environment";

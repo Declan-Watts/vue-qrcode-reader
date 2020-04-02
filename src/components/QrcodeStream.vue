@@ -1,4 +1,5 @@
 <template lang="html">
+  <!-- // HERE -------------------------- -->
   <camera
     ref="camera"
     :deviceID="deviceId"
@@ -34,11 +35,10 @@ export default {
         return ["auto", "rear", "front", "off"].includes(camera);
       }
     },
-
+    // HERE --------------------------
     cameraId: {
       type: String,
-      default:
-        "344fe3b15274e4c6be1348dd742c3ff8f89a2813e3be7e42756bd8481af2253f"
+      default: "123"
     },
 
     track: {
@@ -89,6 +89,7 @@ export default {
         return "environment";
       }
     },
+    // HERE --------------------------
     deviceId() {
       console.log(this.cameraId);
       console.log(this.camera);
