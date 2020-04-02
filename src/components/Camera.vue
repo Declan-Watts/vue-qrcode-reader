@@ -11,11 +11,7 @@
       playsinline
     ></video>
 
-    <canvas
-      ref="pauseFrame"
-      class="pause-frame"
-      v-show="!isPlaying"
-    ></canvas>
+    <canvas ref="pauseFrame" class="pause-frame" v-show="!isPlaying"></canvas>
 
     <div class="overlay">
       <slot></slot>
@@ -25,7 +21,10 @@
 
 <script>
 import adapterFactory from "webrtc-adapter/src/js/adapter_factory.js";
-import { StreamApiNotSupportedError, InsecureContextError } from "../misc/errors.js";
+import {
+  StreamApiNotSupportedError,
+  InsecureContextError
+} from "../misc/errors.js";
 import { imageDataFromVideo } from "../misc/image-data.js";
 import { eventOn, timeout } from "callforth";
 
@@ -35,6 +34,7 @@ const STREAM_API_NOT_SUPPORTED = !(
   (navigator.getUserMedia ||
     (navigator.mediaDevices && navigator.mediaDevices.getUserMedia))
 );
+console.log(navigator.mediaDevices);
 let streamApiShimApplied = false;
 
 export default {
@@ -42,11 +42,17 @@ export default {
 
   props: {
     facingMode: {
-      type: String,
-      default: "environment",
-      validator(value) {
-        return ["environment", "user"].includes(value);
-      }
+      type: String
+      // default: "environment",
+      // validator(value) {
+      //   return ["environment", "user"].includes(value);
+      // }
+      // exact: "344fe3b15274e4c6be1348dd742c3ff8f89a2813e3be7e42756bd8481af2253f"
+    },
+
+    deviceID: {
+      default:
+        "344fe3b15274e4c6be1348dd742c3ff8f89a2813e3be7e42756bd8481af2253f"
     },
 
     stop: {
@@ -73,11 +79,13 @@ export default {
 
     constraints() {
       return {
-        "audio": false,
-        "video": {
-          "width": { min: 360, ideal: 640, max: 1920 },
-          "height": { min: 240, ideal: 480, max: 1080 },
-          "facing-mode": { ideal: this.facingMode }
+        audio: false,
+        video: {
+          width: { min: 360, ideal: 640, max: 1920 },
+          height: { min: 240, ideal: 480, max: 1080 },
+          deviceId: {
+            exact: this.deviceID
+          }
         }
       };
     }
@@ -98,7 +106,7 @@ export default {
         this.$emit("playing", true);
         this.clearPauseFrame();
       } else {
-        this.$emit("playing", false)
+        this.$emit("playing", false);
       }
     },
 
@@ -138,10 +146,16 @@ export default {
   methods: {
     async startStream(constraints) {
       if (this.stream !== null) {
-        this.stopStream(this.stream)
+        this.stopStream(this.stream);
       }
 
       try {
+        console.log(constraints);
+        if (constraints.video.deviceId.exact === "123") {
+          constraints.video.facingMode = "environment";
+          delete constraints.video.deviceId;
+        }
+        console.log(constraints);
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const videoEl = this.$refs.videoEl;
 
@@ -168,18 +182,22 @@ export default {
           this.stream = stream;
         }
       } catch (error) {
-        if (error.name === 'NotAllowedError') {
-          error.message = "You need to grant camera access permisson. " + error.message;
-        } else if (error.name === 'NotFoundError') {
+        if (error.name === "NotAllowedError") {
+          error.message =
+            "You need to grant camera access permisson. " + error.message;
+        } else if (error.name === "NotFoundError") {
           error.message = "No camera on this device. " + error.message;
-        } else if (error.name === 'NotSupportedError') {
-          error.message = "Secure context required (HTTPS, localhost). " + error.message;
-        } else if (error.name === 'NotReadableError') {
+        } else if (error.name === "NotSupportedError") {
+          error.message =
+            "Secure context required (HTTPS, localhost). " + error.message;
+        } else if (error.name === "NotReadableError") {
           error.message = "Is the camera already in use? " + error.message;
-        } else if (error.name === 'OverconstrainedError') {
-          error.message = "Installed cameras are not suitable. " + error.message;
-        } else if (error.name === 'StreamApiNotSupportedError') {
-          error.message = "Stream API is not supported in this browser. " + error.message;
+        } else if (error.name === "OverconstrainedError") {
+          error.message =
+            "Installed cameras are not suitable. " + error.message;
+        } else if (error.name === "StreamApiNotSupportedError") {
+          error.message =
+            "Stream API is not supported in this browser. " + error.message;
         }
 
         this.$emit("error", error);
@@ -271,7 +289,8 @@ export default {
   left: 0;
 }
 
-.camera, .pause-frame {
+.camera,
+.pause-frame {
   display: block;
   object-fit: cover;
   width: 100%;

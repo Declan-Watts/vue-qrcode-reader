@@ -1,5 +1,10 @@
 <template lang="html">
-  <camera ref="camera" :facing-mode="facingMode" :stop="camera === 'off'" @playing="shouldScan = $event">
+  <camera
+    ref="camera"
+    :deviceID="deviceId"
+    :stop="camera === 'off'"
+    @playing="shouldScan = $event"
+  >
     <canvas ref="trackingLayer" class="tracking-layer"></canvas>
 
     <slot></slot>
@@ -23,11 +28,17 @@ export default {
   props: {
     camera: {
       type: String,
-      default: "auto",
+      default: "rear",
 
       validator(camera) {
         return ["auto", "rear", "front", "off"].includes(camera);
       }
+    },
+
+    cameraId: {
+      type: String,
+      default:
+        "344fe3b15274e4c6be1348dd742c3ff8f89a2813e3be7e42756bd8481af2253f"
     },
 
     track: {
@@ -77,6 +88,11 @@ export default {
       } else {
         return "environment";
       }
+    },
+    deviceId() {
+      console.log(this.cameraId);
+      console.log(this.camera);
+      return this.cameraId;
     }
   },
 
@@ -92,12 +108,18 @@ export default {
 
     camera(__, oldCamera) {
       if (oldCamera === "off") {
-        this.$emit("init", new Promise(resolve => this.$once("playing", resolve)));
+        this.$emit(
+          "init",
+          new Promise(resolve => this.$once("playing", resolve))
+        );
       }
     },
 
     facingMode() {
-      this.$emit("init", new Promise(resolve => this.$once("playing", resolve)));
+      this.$emit(
+        "init",
+        new Promise(resolve => this.$once("playing", resolve))
+      );
     }
   },
 
@@ -114,7 +136,6 @@ export default {
       const detectHandler = result => {
         this.onDetect(Promise.resolve(result));
       };
-
       this.stopScanning = keepScanning(this.worker, this.$refs.camera, {
         detectHandler,
         locateHandler: this.onLocate,
